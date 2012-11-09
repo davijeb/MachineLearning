@@ -9,7 +9,9 @@ import javax.swing.text.DefaultEditorKit.SelectWordAction
 
 class SWActor extends Animated {
 
-  def move() {
-    SWAction.action(new MoveRequest(RequestEnum.FORWARD, this))
+  def move(request: RequestEnum.Value) {
+    SWAction.action(new MoveRequest(request,this))
+
   }
+
 }

@@ -1,15 +1,22 @@
 package gui
 
 import swing._
-import event.{MouseClicked, KeyPressed}
+import event.{Event, MouseClicked, KeyPressed}
 import javax.imageio.ImageIO
 import java.io.File
-import javax.swing.ImageIcon
+import javax.swing.{SwingUtilities, ImageIcon}
+import ScalaWorld.SWEnvironment
+import ScalaWorld.structural.SWActor
+import ScalaWorld.enumerations.RequestEnum
+import ScalaWorld.actions.{Wakeup, BEEP, SWAction}
+import ScalaWorld.messaging.{Timer, MoveRequest}
+import ScalaWorld.gui.{AMovementEvent, MySwingUtilities}
+
 
 /**
  * Main GUI application
  */
-object SWGUI extends SimpleSwingApplication{
+object SWGUI extends SimpleSwingApplication {
   import event.Key._
   import java.awt.{Dimension, Graphics2D, Graphics, Image, Rectangle}
   import java.awt.{Color => AWTColor}
@@ -23,9 +30,17 @@ object SWGUI extends SimpleSwingApplication{
 
   val ui = new AbstractUI(xDim/blockSize, yDim/blockSize)
 
+  val rand = new scala.util.Random()
+
+  val requests = Seq[RequestEnum.Value](RequestEnum.FORWARD, RequestEnum.RIGHT, RequestEnum.BACK, RequestEnum.LEFT)
+
   def top = new MainFrame {
     title = "World"
     contents = mainPanel
+
+    Timer(50) {
+      SWAction.action(new MoveRequest(requests(rand.nextInt(4)),ui.stage.currentAvatar.actor))
+    }
   }
 
   def mainPanel = new Panel {
@@ -35,6 +50,7 @@ object SWGUI extends SimpleSwingApplication{
     // Let the panel listen to key strokes and mouse events
     listenTo(keys)
     listenTo(mouse.clicks)
+    listenTo(ui.stage)
 
     // add a movement event handler
     reactions += {
@@ -46,8 +62,11 @@ object SWGUI extends SimpleSwingApplication{
     // add a mouse click (create boundaries) handler
     reactions += {
       case e: MouseClicked =>
-        ui.render(e.point.getX,e.point.getY)
+        ui.render(e.point.getX.toInt,e.point.getY.toInt)
         repaint
+    }
+    reactions += {
+      case AMovementEvent => repaint
     }
 
     override def paint(g: Graphics2D) {

@@ -7,7 +7,11 @@ import collection.mutable
 
 object RequestDispatcher {
 
-  val map: Map[RequestEnum.Value, RequestExecutor] = HashMap(RequestEnum.DEFAULT -> new RequestExecutor())
+  val map: Map[RequestEnum.Value, RequestExecutor] = HashMap(
+    RequestEnum.FORWARD -> new RequestExecutor(),
+    RequestEnum.RIGHT   -> new RequestExecutor(),
+    RequestEnum.BACK    -> new RequestExecutor(),
+    RequestEnum.LEFT    -> new RequestExecutor())
 
   def offer(request: SWRequest)   {
     map.get(request.myaction).get.offer(request)

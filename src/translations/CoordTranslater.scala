@@ -3,7 +3,7 @@ package translations
 import ScalaWorld.enumerations.{RequestEnum, Orientation}
 import translations._
 
-class CoordTranslater {
+object CoordTranslater {
 
   def getTransformation(
                          start:XY,

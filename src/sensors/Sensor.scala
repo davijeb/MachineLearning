@@ -1,5 +1,10 @@
 package ScalaWorld.sensors
 
+import collection.mutable
+import data.MovementSensorData
+import sun.applet.resources.MsgAppletViewer
+import collection.script.{Message, Remove}
+
 /**
  * Created with IntelliJ IDEA.
  * User: martin
@@ -7,6 +12,10 @@ package ScalaWorld.sensors
  * Time: 15:51
  * To change this template use File | Settings | File Templates.
  */
-class Sensor {
+class Sensor extends mutable.Subscriber[Message[MovementSensorData], mutable.ObservableSet[MovementSensorData]] {
+
+  def notify(pub: mutable.ObservableSet[MovementSensorData], event: Message[MovementSensorData]): Unit = {
+    println(event)
+  }
 
 }
