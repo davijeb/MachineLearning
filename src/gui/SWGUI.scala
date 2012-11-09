@@ -12,12 +12,11 @@ object SWGUI extends SimpleSwingApplication{
   import java.awt.{Color => AWTColor}
 
   // Define the width and height of the screen
-  val xDim = 400
-  val yDim = 400
+  val xDim = 800
+  val yDim = 600
 
   // how big are the blocks to be?
   val blockSize   = 20
-
 
   val ui = new AbstractUI(xDim/blockSize, yDim/blockSize)
 
@@ -29,24 +28,32 @@ object SWGUI extends SimpleSwingApplication{
   def mainPanel = new Panel {
     preferredSize = new Dimension(xDim, yDim)
     focusable = true
+
+    // Let the panel listen to key strokes and mouse events
     listenTo(keys)
+    listenTo(mouse.clicks)
+
+    // add a movement event handler
     reactions += {
       case KeyPressed(_, key, _, _) =>
         onKeyPress(key)
         repaint
     }
-    listenTo(mouse.clicks)
+
+    // add a mouse click (create boundaries) handler
     reactions += {
       case e: MouseClicked =>
         ui.render(e.point.getX,e.point.getY)
         repaint
     }
+
     override def paint(g: Graphics2D) {
       g setColor new AWTColor(48, 99, 99)
       g fillRect (0, 0, size.width, size.height)
       onPaint(g)
     }
   }
+
   def onKeyPress(keyCode: Value) = keyCode match {
     case Left  => ui.left()
     case Right => ui.right()

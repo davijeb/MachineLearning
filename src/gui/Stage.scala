@@ -1,6 +1,13 @@
 package gui
 
+import io.Source
+import sys.process._
+import java.io.{PrintWriter, File}
+import dbc.statement.JoinType.Outer.Full
+
 class Stage(size: (Int, Int)) {
+
+  private[this] val COORD_FILE = "c:/coordinates.txt"
 
   // Start at 0,0 (bottom left)
   private[this] def dropOffPos = (0.0,0.0)
@@ -15,6 +22,30 @@ class Stage(size: (Int, Int)) {
   // Define a game view to hold onto the blocks, stage size and the
   def view: GameView = GameView(blocks, size, currentAvatar.current)
 
+  if (Source.fromFile(COORD_FILE).mkString != null)
+    loadFromFile(Option(Source.fromFile(COORD_FILE).mkString))
+
+  def loadFromFile(t: Option[String]) {
+    t match {
+      case Some(t) => drawBlocks(Option(t).get.split("\\),"))
+      case None => println("No previously stored coordinates to load.")
+    }
+  }
+
+  def drawBlocks(coords: Array[String]) {
+    if (coords.size > 1)
+      coords.foreach(t => drawBlock(t.substring(1)))
+  }
+
+  def drawBlock(s: String)    {
+    val tuple =  s.split(",")
+    val t1 = tuple(0).toDouble
+    val t2 = tuple(1).toDouble
+
+    println("Rendering " + t1+","+t2)
+    renderBlock(t1,t2)
+  }
+
   // 4-axis functions
   def moveUp()    = moveBy(0.0, 1.0)
   def moveRight() = moveBy(1.0, 0.0)
@@ -26,14 +57,23 @@ class Stage(size: (Int, Int)) {
     // set the avatar next position
     val moved = currentAvatar.moveBy(delta)
 
+    // get the new x and x positons to check for boundary break
+    val px = moved.pos._1
+    val py = moved.pos._2
+
     // optimistically think the move will be okay
     var ok = true
 
     // check the blocks to see that there is no object in the way
     blocks.foreach(
       f => if(
-        (f.pos._1 == moved.pos._1) && (f.pos._2 == moved.pos._2) && f.kind == FixedKind
+        (f.pos._1 == moved.pos._1) &&
+        (f.pos._2 == moved.pos._2) &&
+        f.kind == FixedKind
       ) ok = false)
+
+    if( !(px >= 0 && px < size._1) || !(py >= 0 && py < size._2))
+      ok = false
 
     if (ok) {
       // unload the piece from the blocks and add the moved piece to the blocks
@@ -84,5 +124,12 @@ class Stage(size: (Int, Int)) {
     val unloaded = unload(piece, blocks)
     val moved = piece.moveBy(px,py)
     blocks = load(piece, unloaded)
+
+    var text = Source.fromFile(COORD_FILE).mkString
+    val writer = new PrintWriter(new File(COORD_FILE))
+
+    writer.append(text.+(point)+",")
+    writer.close()
+
   }
 }
