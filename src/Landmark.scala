@@ -10,6 +10,11 @@ import structural.Wall
  * Time: 14:25
  * To change this template use File | Settings | File Templates.
  */
+
+
+// test comment
+
+
 class Landmark(name: LandmarkEnumerations.Value) {
 
   override def toString(): String = {
