@@ -14,7 +14,7 @@ class Stage(size: (Int, Int)) {
   private[this] def dropOffPos = (0.0,0.0)
 
   // Create an avatar to be inserted into the board at that position
-  private[this] var currentAvatar = ActorAvatar(dropOffPos, AnimKind, Orientation)
+  private[this] var currentAvatar = ActorAvatar(dropOffPos, AnimKind, Orientation.North)
 
   // Initialise the blocks with a single entry at the origin and to this we
   // add the initial avatar - the +: means prepend to the sequence
@@ -65,8 +65,8 @@ class Stage(size: (Int, Int)) {
     var ok = true
 
     // check the blocks to see that there is no object in the way
-    blocks.foreach(
-      f => if(
+
+    blocks.foreach(f => if(
         (f.pos._1 == moved.pos._1) &&
         (f.pos._2 == moved.pos._2) &&
         f.kind == FixedKind
@@ -83,6 +83,7 @@ class Stage(size: (Int, Int)) {
       // set the current piece to be the moved piece
       currentAvatar = moved
     }
+
     this
   }
 
@@ -120,7 +121,7 @@ class Stage(size: (Int, Int)) {
     val px = math.floor(  point._1 / SWGUI.blockSize)
     val py = size._2 - 1 - math.floor(point._2 / SWGUI.blockSize)
 
-    val piece = ActorAvatar((px,py), FixedKind)
+    val piece = ActorAvatar((px,py), FixedKind, Orientation.North)
     val unloaded = unload(piece, blocks)
     val moved = piece.moveBy(px,py)
     blocks = load(piece, unloaded)

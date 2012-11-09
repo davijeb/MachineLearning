@@ -21,7 +21,7 @@ case class ActorAvatar(pos: (Double, Double), kind: PieceKind, locals: Seq[(Doub
 
 case object ActorAvatar {
 
-  def apply(pos: (Double, Double), kind: PieceKind): ActorAvatar =
+  def apply(pos: (Double, Double), kind: PieceKind, orientation: Orientation.Value): ActorAvatar =
     kind match {
       case AnimKind  => ActorAvatar (pos, kind, Seq((0.0, 0.0)), Orientation.North)
       case FixedKind => ActorAvatar( pos, kind, Seq((0.0, 0.0)), Orientation.North)

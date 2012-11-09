@@ -2,6 +2,9 @@ package gui
 
 import swing._
 import event.{MouseClicked, KeyPressed}
+import javax.imageio.ImageIO
+import java.io.File
+import javax.swing.ImageIcon
 
 /**
  * Main GUI application
