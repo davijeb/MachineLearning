@@ -4,9 +4,10 @@ import ScalaWorld.enumerations._
 
 /**
  * Animated avatar
- * @param pos the avatars position
- * @param kind what kind is the avatar
- * @param locals a pool of all the
+ * @param pos avatar position
+ * @param kind what kind it is
+ * @param locals the local blocks
+ * @param orientation orientation
  */
 case class ActorAvatar(pos: (Double, Double), kind: PieceKind, locals: Seq[(Double, Double)], orientation: Orientation.Value) {
 
@@ -22,7 +23,7 @@ case object ActorAvatar {
 
   def apply(pos: (Double, Double), kind: PieceKind): ActorAvatar =
     kind match {
-      case AnimKind  => ActorAvatar (pos, kind, Seq((0.0, 0.0)))
-      case FixedKind => ActorAvatar( pos, kind, Seq((0.0, 0.0)))
+      case AnimKind  => ActorAvatar (pos, kind, Seq((0.0, 0.0)), Orientation.North)
+      case FixedKind => ActorAvatar( pos, kind, Seq((0.0, 0.0)), Orientation.North)
     }
 }
