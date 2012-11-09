@@ -8,13 +8,13 @@ import ScalaWorld.enumerations.Orientation
 
 class Stage(size: (Int, Int)) {
 
-  private[this] val COORD_FILE = "c:/coordinates.txt"
+  private[this] val COORD_FILE = "c:/Users/Public/coordinates.txt"
 
   // Start at 0,0 (bottom left)
   private[this] def dropOffPos = (0.0,0.0)
 
   // Create an avatar to be inserted into the board at that position
-  private[this] var currentAvatar = ActorAvatar(dropOffPos, AnimKind, Orientation.North)
+  private[this] var currentAvatar = ActorAvatar(dropOffPos, AnimKind, Orientation)
 
   // Initialise the blocks with a single entry at the origin and to this we
   // add the initial avatar - the +: means prepend to the sequence
