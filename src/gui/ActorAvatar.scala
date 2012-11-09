@@ -1,12 +1,14 @@
 package gui
 
+import ScalaWorld.enumerations._
+
 /**
  * Animated avatar
  * @param pos the avatars position
  * @param kind what kind is the avatar
  * @param locals a pool of all the
  */
-case class ActorAvatar(pos: (Double, Double), kind: PieceKind, locals: Seq[(Double, Double)]) {
+case class ActorAvatar(pos: (Double, Double), kind: PieceKind, locals: Seq[(Double, Double)], orientation: Orientation.Value) {
 
   def current: Seq[Block] = locals map {
     case (x, y) => Block((math.floor(x + pos._1).toInt,math.floor(y + pos._2).toInt),kind)

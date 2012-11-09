@@ -4,6 +4,7 @@ import io.Source
 import sys.process._
 import java.io.{PrintWriter, File}
 import dbc.statement.JoinType.Outer.Full
+import ScalaWorld.enumerations.Orientation
 
 class Stage(size: (Int, Int)) {
 
@@ -13,7 +14,7 @@ class Stage(size: (Int, Int)) {
   private[this] def dropOffPos = (0.0,0.0)
 
   // Create an avatar to be inserted into the board at that position
-  private[this] var currentAvatar = ActorAvatar(dropOffPos, AnimKind)
+  private[this] var currentAvatar = ActorAvatar(dropOffPos, AnimKind, Orientation.North)
 
   // Initialise the blocks with a single entry at the origin and to this we
   // add the initial avatar - the +: means prepend to the sequence
@@ -42,7 +43,6 @@ class Stage(size: (Int, Int)) {
     val t1 = tuple(0).toDouble
     val t2 = tuple(1).toDouble
 
-    println("Rendering " + t1+","+t2)
     renderBlock(t1,t2)
   }
 

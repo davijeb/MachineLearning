@@ -83,7 +83,7 @@ object SWGUI extends SimpleSwingApplication{
       for {
         x <- 0 to view.gridSize._1 - 1
         y <- 0 to view.gridSize._2 - 1
-        val pos = (x, y)
+        pos = (x, y)
       } g draw buildRect(pos)
     }
 
