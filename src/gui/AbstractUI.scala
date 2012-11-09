@@ -1,5 +1,10 @@
 package gui
 
+/**
+ * Modified...
+ * @param xDim
+ * @param yDim
+ */
 class AbstractUI(xDim: Int, yDim: Int) {
   private[this] val stage = new Stage((xDim, yDim))
   def left() {
