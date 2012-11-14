@@ -6,11 +6,15 @@ import javax.imageio.ImageIO
 import java.io.File
 import javax.swing.{SwingUtilities, ImageIcon}
 import ScalaWorld.SWEnvironment
-import ScalaWorld.structural.SWActor
+
 import ScalaWorld.enumerations.RequestEnum
 import ScalaWorld.actions.{Wakeup, BEEP, SWAction}
 import ScalaWorld.messaging.{Timer, MoveRequest}
-import ScalaWorld.gui.{AMovementEvent, MySwingUtilities}
+import ScalaWorld.gui.{AMovementEvent}
+import ScalaWorld.structural.behaviours.MoveBehaviour
+import ScalaWorld.structural.{RobotFactory, Robot}
+import collection.mutable.ListBuffer
+import translations.XY
 
 
 /**
@@ -28,7 +32,17 @@ object SWGUI extends SimpleSwingApplication {
   // how big are the blocks to be?
   val blockSize   = 20
 
-  val ui = new AbstractUI(xDim/blockSize, yDim/blockSize)
+  val uis = ListBuffer[AbstractUI]();
+
+  val robots = ListBuffer[Robot]()
+
+  // add the robots here
+  robots += RobotFactory.get("Avatar 1", new XY(0,0))
+  robots += RobotFactory.get("Avatar 2", new XY(4,0))
+
+  //robots.foreach(uis +=  new AbstractUI(xDim/blockSize, yDim/blockSize, new XY(0,0)))
+
+  val ui = new AbstractUI(xDim/blockSize, yDim/blockSize, new XY(0,0), robots)
 
   val rand = new scala.util.Random()
 
@@ -38,8 +52,8 @@ object SWGUI extends SimpleSwingApplication {
     title = "World"
     contents = mainPanel
 
-    Timer(50) {
-      SWAction.action(new MoveRequest(requests(rand.nextInt(4)),ui.stage.currentAvatar.actor))
+    Timer(500) {
+      robots.foreach(_.doCycle)
     }
   }
 
@@ -66,7 +80,7 @@ object SWGUI extends SimpleSwingApplication {
         repaint
     }
     reactions += {
-      case AMovementEvent => repaint
+      case AMovementEvent => repaint;  val x = 0
     }
 
     override def paint(g: Graphics2D) {
@@ -81,7 +95,7 @@ object SWGUI extends SimpleSwingApplication {
     case Right => ui.right()
     case Up    => ui.up()
     case Down  => ui.down()
-    case Space => ui.space()
+    case S     => ui.fireSleepSensor
     case _ =>
   }
 
@@ -90,11 +104,7 @@ object SWGUI extends SimpleSwingApplication {
     val view = ui.view
 
     def buildRect(pos: (Int, Int)): Rectangle =
-      new Rectangle(
-        pos._1 * blockSize,
-        (view.gridSize._2 - pos._2 - 1) * blockSize,
-        blockSize,
-        blockSize)
+      new Rectangle(pos._1 * blockSize,(view.gridSize._2 - pos._2 - 1) * blockSize, blockSize, blockSize)
 
     /**
      * Loop from 0 -> xDim/blockSize, 0 -> yDim/blockSize to create an NxM Matrix
@@ -105,8 +115,7 @@ object SWGUI extends SimpleSwingApplication {
       for {
         x <- 0 to view.gridSize._1 - 1
         y <- 0 to view.gridSize._2 - 1
-        pos = (x, y)
-      } g draw buildRect(pos)
+      } g draw buildRect((x, y))
     }
 
     def drawBlocks {
@@ -116,11 +125,12 @@ object SWGUI extends SimpleSwingApplication {
 
     def drawCurrent {
       g setColor new AWTColor(210, 255, 255)
-      view.current foreach { b => g fill buildRect(b.pos) }
+      view.avatars foreach { a => g fill buildRect(a.position) }
     }
 
     drawEmptyGrid
     drawBlocks
     drawCurrent
+
   }
 }

@@ -2,7 +2,8 @@ package ScalaWorld
 
 import _root_.gui.{ActorAvatar, Stage, SWGUI, AbstractUI}
 import enumerations.{RequestEnum, Orientation, LandmarkEnumerations, OutcomeEnum}
-import structural.{SWActor, Block, Grid, Animated}
+import structural.behaviours.Behaviour
+import structural.{ Block, Grid, Animated}
 
 class SWEnvironment(ui: AbstractUI)
 

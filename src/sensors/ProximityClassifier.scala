@@ -12,7 +12,7 @@ import ScalaWorld.enumerations.LandmarkEnumerations._
  */
 class ProximityClassifier(senses: Tuple4[Boolean, Boolean, Boolean, Boolean]) extends Classifier {
 
-  def doit(): Landmark = {
+  def classify(): Landmark = {
 
     senses match {
       case(true, true, true, true)     => new Landmark(TRAP)              // 1111

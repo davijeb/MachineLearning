@@ -1,3 +1,3 @@
 package gui
 
-case class GameView(blocks: Seq[Block], gridSize: (Int, Int), current: Seq[Block])
+case class GameView(blocks: List[Block], gridSize: (Int, Int), avatars: List[ActorAvatar])

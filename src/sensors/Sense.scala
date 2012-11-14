@@ -7,6 +7,6 @@ package ScalaWorld.sensors
  * Time: 15:53
  * To change this template use File | Settings | File Templates.
  */
-class Sense {
+class Sense extends Sensor {
 
 }
