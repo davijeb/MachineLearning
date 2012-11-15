@@ -41,6 +41,12 @@ class Stage(size: (Int, Int), xy: XY, robots: List[Robot]) extends Publisher {
   if (Source.fromFile(COORDINATE_FILE).mkString != null)
     loadFromFile(Option(Source.fromFile(COORDINATE_FILE).mkString))
 
+  /**
+   * Fire the collisions sensors at the start otherwise
+   * the robots may just wander into a fixed block
+   */
+  avatars.foreach( CollisionBehaviour ! (_))
+
   def loadFromFile(t: Option[String]) {
     t match {
       case Some(t) => drawBlocks(Option(t).get.split("\\),"))

@@ -16,6 +16,7 @@ case class ActorAvatar(name:String, pos: XY, kind: PieceKind, orientation: Orien
 
   val ident = name
   var position = pos
+  var robot = null
 
   def moveBy(delta: (Int, Int)): ActorAvatar =
     copy(pos =  new XY (pos._1 + delta._1, pos._2 + delta._2))
@@ -27,5 +28,9 @@ case class ActorAvatar(name:String, pos: XY, kind: PieceKind, orientation: Orien
     copy(pos = new XY(newPos._1, newPos._2))
 
   def immutableMove(delta: XY) {position = delta}
+
+  def setRobot(r: Robot) {
+    robot = r
+  }
 
 }

@@ -17,6 +17,9 @@ object RobotFactory {
     val avatar = new ActorAvatar(name, xy, AnimKind, Orientation.North)
     val robot  = new Robot(avatar) + new MoveBehaviour("Movement behaviour", avatar)
 
+    // we need to ensure the avatar knows about the controlling robot
+    avatar.setRobot(robot)
+
     cache += (avatar -> robot)
 
     robot

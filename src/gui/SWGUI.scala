@@ -30,14 +30,14 @@ object SWGUI extends SimpleSwingApplication {
   val yDim = 600
 
   // how big are the blocks to be?
-  val blockSize   = 80
+  val blockSize   = 10
 
   val uis = ListBuffer[AbstractUI]();
 
   val robots = ListBuffer[Robot]()
 
   // add the robots here
-  robots += RobotFactory.get("Avatar 1", new XY(0,0))
+  robots += RobotFactory.get("Avatar 1", new XY(3,0))
   //robots += RobotFactory.get("Avatar 2", new XY(4,0))
 
   //robots.foreach(uis +=  new AbstractUI(xDim/blockSize, yDim/blockSize, new XY(0,0)))
