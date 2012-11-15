@@ -64,6 +64,17 @@ class Stage(size: (Int, Int)) extends Publisher {
     }
   }
 
+  // this could be written as
+
+  /**
+   * def drawBlocks(coords: Array[String]) {
+      drawBlock(coords) then the other method would be
+
+   def drawBlock(s: _*)    {
+  }
+
+   This notation tells the compiler to pass each element of arr as its own argument to echo, rather than all of it as a single argument.
+  */
   def drawBlocks(coords: Array[String]) {
     if (coords.size > 1)
       coords.foreach(t => drawBlock(t.substring(1)))
