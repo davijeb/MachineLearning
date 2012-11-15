@@ -10,9 +10,9 @@ import ScalaWorld.enumerations.LandmarkEnumerations._
  * Time: 16:07
  * To change this template use File | Settings | File Templates.
  */
-class ProximityClassifier(senses: Tuple4[Boolean, Boolean, Boolean, Boolean]) extends Classifier {
+object ProximityClassifier extends Classifier {
 
-  def classify(): Landmark = {
+  def classify(senses: Tuple4[Boolean, Boolean, Boolean, Boolean]): Landmark = {
 
     senses match {
       case(true, true, true, true)     => new Landmark(TRAP)              // 1111

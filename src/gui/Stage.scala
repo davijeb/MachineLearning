@@ -5,7 +5,7 @@ import sys.process._
 import java.io.{PrintWriter, File}
 import dbc.statement.JoinType.Outer.Full
 import ScalaWorld.enumerations.{RequestEnum, OutcomeEnum, Orientation}
-import ScalaWorld.structural.behaviours.{MoveBehaviour, BehaviourClassificationEnum, Behaviour}
+import ScalaWorld.structural.behaviours.{CollisionBehaviour, MoveBehaviour, BehaviourClassificationEnum, Behaviour}
 import ScalaWorld.structural.{Robot, Animated}
 import translations.{XY, CoordTranslater}
 import swing.Publisher
@@ -13,23 +13,30 @@ import ScalaWorld.gui.{AMovementEvent}
 import collection.script._
 import collection.mutable.{ListBuffer, Seq}
 import collection.mutable
-import ScalaWorld.sensors.Sensor
+import ScalaWorld.structural.Robot
+import ScalaWorld.sensors.{SensorArray, SensorRefresh}
+import scala.collection.mutable.Map
 
 class Stage(size: (Int, Int), xy: XY, robots: List[Robot]) extends Publisher {
 
+  private[this] val blocks  = Map[XY,Block]()
+
+  // Flood the grid with empty blocks initially
+  for {
+    x <- 0 to size._1 - 1
+    y <- 0 to size._2 - 1
+  } blocks += (new XY(x, y) -> new Block(new XY(x,y), EmptyKind))
+
   private[this] val COORDINATE_FILE = "c:/Users/Public/coordinates.txt"
 
-  // Start at 0,0 (bottom left)
-  private[this] def dropOffPos = xy
-
-  private[this] val blocks  = ListBuffer[Block]()
+  //private[this] val blocks  = ListBuffer[Block]()
   private[this] val avatars = ListBuffer[ActorAvatar]()
 
   avatars += robots(0).actorAvatar
-  avatars += robots(1).actorAvatar
+  //avatars += robots(1).actorAvatar
 
   // Define a game view to hold onto the blocks, stage size and the
-  def view: GameView = GameView(blocks.toList, size, avatars.toList)
+  def view: GameView = GameView(blocks, size, avatars.toList)
 
   if (Source.fromFile(COORDINATE_FILE).mkString != null)
     loadFromFile(Option(Source.fromFile(COORDINATE_FILE).mkString))
@@ -73,33 +80,33 @@ class Stage(size: (Int, Int), xy: XY, robots: List[Robot]) extends Publisher {
     // set the avatar next position
     var moved = mover(avatar)
 
-    // get the new x and x positons to check for boundary break
+    // get the new x and x positions to check for boundary break
     val px = moved.position._1
     val py = moved.position._2
 
     // optimistically think the move will be okay
     var ok = true
 
-    // check the blocks to see that there is no object in the way
-    blocks.foreach(f => if(
-        (f.pos._1 == moved.pos._1) &&
-        (f.pos._2 == moved.pos._2) &&
-        f.kind == FixedKind
-      ) ok = false)
-
-    if( !(px >= 0 && px < size._1) || !(py >= 0 && py < size._2))
-      ok = false
-
-    if (ok) {
-      // set the current piece to be the moved piece
-     //println(avatar.ident + " has moved to " + px + "," + py)
-     avatar.immutableMove(new XY(px, py))
-    }
+    avatar.immutableMove(new XY(px, py))
 
     ok match {
       case(true)  => OutcomeEnum.SUCCESS
       case(false) => OutcomeEnum.FAILURE
     }
+  }
+
+  private[this] def edgeCheck(px: Int, py: Int): Boolean = {
+    if((px >= 0 && px < size._1) || !(py >= 0 && py < size._2)) {
+      false
+    }
+    true
+  }
+
+  def renderBlockFromCoordinates(point: (Int, Int)) {
+    val px = (math.floor(  point._1 / SWGUI.blockSize)).toInt
+    val py = (size._2 - 1 - math.floor(point._2 / SWGUI.blockSize)).toInt
+
+    renderBlock((px,py))
   }
 
   /**
@@ -110,32 +117,29 @@ class Stage(size: (Int, Int), xy: XY, robots: List[Robot]) extends Publisher {
    */
   def renderBlock(point: (Int, Int)) {
 
-    val px = (math.floor(  point._1 / SWGUI.blockSize)).toInt
-    val py = (size._2 - 1 - math.floor(point._2 / SWGUI.blockSize)).toInt
+    val xy = new XY(point._1, point._2)
 
-    blocks += new Block(new XY(px,py), FixedKind)
+    blocks(xy) =  new Block(xy, FixedKind)
 
     var text = Source.fromFile(COORDINATE_FILE).mkString
     val writer = new PrintWriter(new File(COORDINATE_FILE))
 
-    writer.append(text.+(point)+",")
+    writer.append(text.+(xy)+",")
     writer.close()
 
   }
 
   /**
    * Move the current avatar - wrong as there needs to be more thn one of them
-   * @param act
    * @return
    */
-  def move(act: RequestEnum.Value, avatar: ActorAvatar): OutcomeEnum.Value = {
+  def move(direction: RequestEnum.Value, avatar: ActorAvatar): OutcomeEnum.Value = {
 
     val orientation = avatar.orientation;
-    val direction = act;
 
     // based on the orientation and direction we can work out the next xy coordinates
     // using the CoordTranslater
-    val xy = CoordTranslater.getTransformation(avatar.position,orientation,direction)
+    val xy = CoordTranslater.getTransformation(avatar.position,avatar.orientation,direction)
 
     // publish the move event for the reactor to fire
     publish(AMovementEvent)
@@ -143,6 +147,21 @@ class Stage(size: (Int, Int), xy: XY, robots: List[Robot]) extends Publisher {
     // call to move the actor to a new block
     val outcome = moveTo(xy, avatar)
 
+    CollisionBehaviour ! (avatar)
+
     outcome
+  }
+
+  def locationIdent(avatar: ActorAvatar): Tuple4[Boolean, Boolean, Boolean, Boolean] = {
+
+    val p = avatar.position
+    val o = avatar.orientation
+
+    Tuple4(
+       blocks.getOrElse(CoordTranslater.getTransformation(p,o,RequestEnum.FORWARD),new Block((-1,-1),FixedKind)).kind == FixedKind,
+       blocks.getOrElse(CoordTranslater.getTransformation(p,o,RequestEnum.RIGHT),  new Block((-1,-1),FixedKind)).kind == FixedKind,
+       blocks.getOrElse(CoordTranslater.getTransformation(p,o,RequestEnum.BACK),   new Block((-1,-1),FixedKind)).kind == FixedKind,
+       blocks.getOrElse(CoordTranslater.getTransformation(p,o,RequestEnum.LEFT),   new Block((-1,-1),FixedKind)).kind == FixedKind
+     )
   }
 }

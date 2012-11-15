@@ -21,6 +21,8 @@ abstract class Behaviour(name: String, classification: BehaviourClassificationEn
   val sensors: List[Sensor]             = List()
   val theirActivity: List[Behaviour]    = List()
 
+  val myAvatar = avatar
+
   val INHIBITION_THRESHOLD = 50;
 
   var inhibitionSum = 0;

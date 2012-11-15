@@ -17,7 +17,5 @@ import structural.Wall
 
 class Landmark(name: LandmarkEnumerations.Value) {
 
-  override def toString(): String = {
-    "Landmark is: " + name
-  }
+  override def toString = "Landmark is: " + name
 }

@@ -4,6 +4,7 @@ import ScalaWorld.enumerations._
 import translations.XY
 import scala.collection.mutable.Seq
 import ScalaWorld.structural.behaviours.{BehaviourClassificationEnum, MoveBehaviour, Behaviour}
+import ScalaWorld.structural.Robot
 
 /**
  * Animated avatar

@@ -12,8 +12,8 @@ object SleepBehaviour extends GodBehaviour("",null, null) {
    * Able to receive inputs from external sources
    */
   def act() {
-    while(true) {
-      receive {
+    loop {
+      react {
         case WakeOrSleep => myActivity = 0;
       }
     }

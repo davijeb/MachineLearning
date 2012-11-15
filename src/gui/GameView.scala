@@ -1,3 +1,6 @@
 package gui
 
-case class GameView(blocks: List[Block], gridSize: (Int, Int), avatars: List[ActorAvatar])
+import translations.XY
+import scala.collection.mutable.Map
+
+case class GameView(blocks:  Map[XY,Block], gridSize: (Int, Int), avatars: List[ActorAvatar])

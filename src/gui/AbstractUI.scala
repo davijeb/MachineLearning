@@ -27,7 +27,7 @@ class AbstractUI(xDim: Int, yDim: Int, xy: XY, robots: ListBuffer[Robot]) {
     //stage.moveDown()
   }
   def render(x: Int, y: Int) {
-    stage.renderBlock(x,y)
+    stage.renderBlockFromCoordinates(x,y)
   }
   def move(act: RequestEnum.Value, avatar: ActorAvatar): OutcomeEnum.Value = {
     stage.move(act, avatar)
@@ -35,5 +35,6 @@ class AbstractUI(xDim: Int, yDim: Int, xy: XY, robots: ListBuffer[Robot]) {
   def fireSleepSensor() {
     robots.foreach(_.behaviours.foreach(_.inhibitions.foreach(_ ! WakeOrSleep)))
   }
+
   def view: GameView = stage.view
 }

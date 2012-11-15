@@ -30,7 +30,7 @@ object SWGUI extends SimpleSwingApplication {
   val yDim = 600
 
   // how big are the blocks to be?
-  val blockSize   = 20
+  val blockSize   = 80
 
   val uis = ListBuffer[AbstractUI]();
 
@@ -38,7 +38,7 @@ object SWGUI extends SimpleSwingApplication {
 
   // add the robots here
   robots += RobotFactory.get("Avatar 1", new XY(0,0))
-  robots += RobotFactory.get("Avatar 2", new XY(4,0))
+  //robots += RobotFactory.get("Avatar 2", new XY(4,0))
 
   //robots.foreach(uis +=  new AbstractUI(xDim/blockSize, yDim/blockSize, new XY(0,0)))
 
@@ -119,8 +119,12 @@ object SWGUI extends SimpleSwingApplication {
     }
 
     def drawBlocks {
-      g setColor new AWTColor(200, 99, 99)
-      view.blocks foreach { b => g fill buildRect(b.pos) }
+      view.blocks.values foreach { b =>  {
+        if(b.kind.render) {
+          g setColor b.kind.colour
+          g fill buildRect(b.pos)
+        }
+      } }
     }
 
     def drawCurrent {

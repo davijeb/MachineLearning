@@ -3,11 +3,13 @@ package ScalaWorld.structural
 import behaviours.Behaviour
 import collection.mutable.ListBuffer
 import gui.ActorAvatar
+import actors.Actor
+import ScalaWorld.messaging.WakeOrSleep
+import ScalaWorld.sensors.SensorRefresh
 
 class Robot(avatar: ActorAvatar) {
 
   val actorAvatar = avatar
-
   val behaviours = new ListBuffer[Behaviour];
 
   def doCycle() {
@@ -24,5 +26,4 @@ class Robot(avatar: ActorAvatar) {
     behaviours += b
     this
   }
-
 }
