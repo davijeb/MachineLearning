@@ -3,7 +3,6 @@ package gui
 import io.Source
 import sys.process._
 import java.io.{PrintWriter, File}
-import dbc.statement.JoinType.Outer.Full
 import ScalaWorld.enumerations.{RequestEnum, OutcomeEnum, Orientation}
 import ScalaWorld.structural.behaviours.{CollisionBehaviour, MoveBehaviour, BehaviourClassificationEnum, Behaviour}
 import ScalaWorld.structural.{Robot, Animated}
@@ -158,12 +157,12 @@ class Stage(size: (Int, Int), xy: XY, robots: List[Robot]) extends Publisher {
     outcome
   }
 
-  def locationIdent(avatar: ActorAvatar): Tuple4[Boolean, Boolean, Boolean, Boolean] = {
+  def locationIdent(avatar: ActorAvatar): (Boolean, Boolean, Boolean, Boolean) = {
 
     val p = avatar.position
     val o = avatar.orientation
 
-    Tuple4(
+    (
        blocks.getOrElse(CoordTranslater.getTransformation(p,o,RequestEnum.FORWARD),new Block((-1,-1),FixedKind)).kind == FixedKind,
        blocks.getOrElse(CoordTranslater.getTransformation(p,o,RequestEnum.RIGHT),  new Block((-1,-1),FixedKind)).kind == FixedKind,
        blocks.getOrElse(CoordTranslater.getTransformation(p,o,RequestEnum.BACK),   new Block((-1,-1),FixedKind)).kind == FixedKind,

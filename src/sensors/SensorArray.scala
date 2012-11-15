@@ -13,7 +13,7 @@ import ScalaWorld.structural.RobotFactory
  */
 object SensorArray extends Actor {
 
-  start
+  start()
 
   def act() {
     loop {

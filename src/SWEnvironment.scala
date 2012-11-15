@@ -14,7 +14,7 @@ object SWEnvironment {
   def move(): OutcomeEnum.Value = {
 
     // tell the avatar to move
-    gui.ui.up();
+    gui.ui.up()
 
     OutcomeEnum.SUCCESS
 

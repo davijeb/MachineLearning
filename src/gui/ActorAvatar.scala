@@ -10,13 +10,13 @@ import ScalaWorld.structural.Robot
  * Animated avatar
  * @param pos avatar position
  * @param kind what kind it is
- * @param orientation orientation
  */
-case class ActorAvatar(name:String, pos: XY, kind: PieceKind, orientation: Orientation.Value) {
+case class ActorAvatar(name:String, pos: XY, kind: PieceKind, o: Orientation.Value) {
 
   val ident = name
   var position = pos
-  var robot = null
+  var robot:Robot = null
+  var orientation = o
 
   def moveBy(delta: (Int, Int)): ActorAvatar =
     copy(pos =  new XY (pos._1 + delta._1, pos._2 + delta._2))

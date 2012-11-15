@@ -1,14 +1,14 @@
 package ScalaWorld.barrier
 
 import java.util.concurrent.CyclicBarrier
-import ScalaWorld.structural.behaviours.Behaviour
+import ScalaWorld.structural.behaviours.{Behaviours, Behaviour}
 
-class BehaviourTask(cb: CyclicBarrier, b: Behaviour) extends Runnable {
+class BehaviourTask(cb: CyclicBarrier, b: Behaviours) extends Runnable {
 
   override def run() {
 
     println("Do inhibitions")
-    cb.await();
+    cb.await()
     println("Do sensors")
     println("Do algo")
   }

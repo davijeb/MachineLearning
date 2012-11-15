@@ -5,6 +5,7 @@ import ScalaWorld.structural.behaviours.{Behaviour, BehaviourClassificationEnum,
 import ScalaWorld.messaging.WakeOrSleep
 
 object SleepBehaviour extends GodBehaviour("",null, null) {
+
   // all god like behaviour is active at the start
   myActivity = 100
 

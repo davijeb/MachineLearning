@@ -9,10 +9,7 @@ import ScalaWorld.sensors.ProximityClassifier
 
 object CollisionBehaviour extends AutonomousBehaviour("",null, null) with Actor {
 
-  //val landmark = SWGUI.ui.stage.locationIdent(av)
-  //println("Landmark: " + landmark)
-
-  start
+  start()
   /**
    * Able to receive inputs from external sources
    */
@@ -20,11 +17,14 @@ object CollisionBehaviour extends AutonomousBehaviour("",null, null) with Actor 
     loop {
       react {
         case (av: ActorAvatar) => {
-          val landscape = SWGUI.ui.stage.locationIdent(av)
-          val landmark = ProximityClassifier.classify(landscape)
-          println(av.ident + " - " + landmark)
+
+          val landmark = ProximityClassifier.classify(SWGUI.ui.stage.locationIdent(av))
+
+          if (landmark.lndmarkEnum == LandmarkEnumerations.BLINDALLEY_F) {
+            myActivity = 100
+          }
         }
-    }
+      }
     }
   }
 }

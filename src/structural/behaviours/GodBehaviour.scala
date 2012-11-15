@@ -8,6 +8,6 @@ import gui.ActorAvatar
  * @param name the behaviour name
  * @param classification the behaviour classification
  */
-abstract class GodBehaviour(name: String, classification: BehaviourClassificationEnum.Value, avatar: ActorAvatar) extends Behaviour ( name, classification, avatar) {
+abstract class GodBehaviour(name: String, classification: BehaviourClassificationEnum.Value, avatar: ActorAvatar) extends Behaviours ( name, classification, avatar) {
 
 }

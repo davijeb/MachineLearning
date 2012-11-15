@@ -53,7 +53,7 @@ object SWGUI extends SimpleSwingApplication {
     contents = mainPanel
 
     Timer(500) {
-      robots.foreach(_.doCycle)
+      robots.foreach(_.doCycle())
     }
   }
 
@@ -70,17 +70,17 @@ object SWGUI extends SimpleSwingApplication {
     reactions += {
       case KeyPressed(_, key, _, _) =>
         onKeyPress(key)
-        repaint
+        repaint()
     }
 
     // add a mouse click (create boundaries) handler
     reactions += {
       case e: MouseClicked =>
         ui.render(e.point.getX.toInt,e.point.getY.toInt)
-        repaint
+        repaint()
     }
     reactions += {
-      case AMovementEvent => repaint;  val x = 0
+      case AMovementEvent => repaint();  val x = 0
     }
 
     override def paint(g: Graphics2D) {
@@ -95,7 +95,7 @@ object SWGUI extends SimpleSwingApplication {
     case Right => ui.right()
     case Up    => ui.up()
     case Down  => ui.down()
-    case S     => ui.fireSleepSensor
+    case S     => ui.fireSleepSensor()
     case _ =>
   }
 

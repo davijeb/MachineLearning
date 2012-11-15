@@ -5,7 +5,6 @@ import ScalaWorld.structural.behaviours.MoveBehaviour
 
 object BarrierTest extends App {
 
-    def doit = {
 
       val cb = new CyclicBarrier(3, new Runnable {
         def run() {println("All parties have arrived at the barrier - so lets continue")}
@@ -19,7 +18,5 @@ object BarrierTest extends App {
       t2.start
       t3.start
 
-
-    }
 
 }

@@ -1,6 +1,6 @@
 package ScalaWorld.structural
 
-import behaviours.Behaviour
+import behaviours.Behaviours
 import collection.mutable.ListBuffer
 import gui.ActorAvatar
 import actors.Actor
@@ -10,7 +10,7 @@ import ScalaWorld.sensors.SensorRefresh
 class Robot(avatar: ActorAvatar) {
 
   val actorAvatar = avatar
-  val behaviours = new ListBuffer[Behaviour];
+  val behaviours = new ListBuffer[Behaviours]
 
   def doCycle() {
    behaviours.foreach(_.doCycle())
@@ -22,7 +22,7 @@ class Robot(avatar: ActorAvatar) {
    * @param b the behaviour
    * @return me
    */
-  def +(b: Behaviour): Robot = {
+  def +(b: Behaviours): Robot = {
     behaviours += b
     this
   }
