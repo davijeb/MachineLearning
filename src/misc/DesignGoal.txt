@@ -1,0 +1,3 @@
+Make an eCommerce system with the following workflow:
+
+getOrderForm -> creditCheck -> stockCheck -> process

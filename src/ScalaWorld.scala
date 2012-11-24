@@ -5,7 +5,6 @@ import messaging.{RequestDispatcher, RequestExecutor}
 import scala.swing._
 import scala.swing.event._
 import enumerations.LandmarkEnumerations._
-import structural.SWActor
 import enumerations.RequestEnum
 import collection.immutable.HashMap
 

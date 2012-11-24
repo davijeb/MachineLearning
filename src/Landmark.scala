@@ -15,9 +15,7 @@ import structural.Wall
 // test comment
 
 
-class Landmark(name: LandmarkEnumerations.Value) {
+class Landmark(lme: LandmarkEnumerations.Value) {
 
-  override def toString(): String = {
-    "Landmark is: " + name
-  }
+  val lndmarkEnum = lme
 }

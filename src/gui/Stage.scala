@@ -3,59 +3,44 @@ package gui
 import io.Source
 import sys.process._
 import java.io.{PrintWriter, File}
-import dbc.statement.JoinType.Outer.Full
 import ScalaWorld.enumerations.{RequestEnum, OutcomeEnum, Orientation}
-import ScalaWorld.structural.{Animated, SWActor}
+import ScalaWorld.structural.behaviours.classification.BehaviourClassificationEnum
+import ScalaWorld.structural.behaviours.specific.{BehaviourMove, BehaviourCollision}
+import ScalaWorld.structural.behaviours.{Behaviour}
+import ScalaWorld.structural.{Robot, Animated}
 import translations.{XY, CoordTranslater}
 import swing.Publisher
-import ScalaWorld.gui.{ASensorEvent, AMovementEvent}
+import ScalaWorld.gui.{AMovementEvent}
 import collection.script._
-import scala.collection.mutable.Seq
+import collection.mutable.{ListBuffer, Seq}
 import collection.mutable
-import ScalaWorld.sensors.Sensor
-import ScalaWorld.sensors.data.MovementSensorData
+import ScalaWorld.structural.Robot
+import ScalaWorld.sensors.{SensorArray, SensorRefresh}
+import scala.collection.mutable.Map
 
-class Stage(size: (Int, Int)) extends Publisher {
+class Stage(size: (Int, Int), xy: XY, robots: List[Robot]) extends Publisher {
 
-  // start - publish/subscribe for movement events
-    val set = new mutable.HashSet[MovementSensorData] with mutable.ObservableSet[MovementSensorData] { }
-    type Msg = Message[MovementSensorData] with mutable.Undoable
+  private[this] val blocks  = Map[XY,Block]()
 
-    type Sub = mutable.Subscriber[Msg, mutable.ObservableSet[MovementSensorData]]
+  // Flood the grid with empty blocks initially
+  for {
+    x <- 0 to size._1 - 1
+    y <- 0 to size._2 - 1
+  } blocks += (new XY(x, y) -> new Block(new XY(x,y), EmptyKind))
 
-//    val sub = new Sub() {
-//      def notify(pub: mutable.ObservableSet[String], event: Msg): Unit = {
-//        println("%s sent %s".format(pub, event))
-//        event match {
-//          case r:Remove[_] => println("undo!"); event.undo()
-//          case _ =>
-//        }
-//      }
-//    }
-
-    val sub2 = new Sensor()
-
-    //set.subscribe(sub)
-    set.subscribe(sub2)
-  // end
-
-  private[this] val COORD_FILE = "c:/Users/Public/coordinates.txt"
-
-  // Start at 0,0 (bottom left)
-  private[this] def dropOffPos = new XY(0,0)
-
-  // Create an avatar to be inserted into the board at that position
-  var currentAvatar = ActorAvatar(dropOffPos, AnimKind, Orientation.North, new SWActor())
-
-  // Initialise the blocks with a single entry at the origin and to this we
-  // add the initial avatar - the +: means prepend to the sequence
-  private[this] var blocks = Block((0, 0), AnimKind) +: currentAvatar.current
+  private[this] val COORDINATE_FILE = "c:/Users/Public/coordinates.txt"
 
   // Define a game view to hold onto the blocks, stage size and the
-  def view: GameView = GameView(blocks, size, currentAvatar.current)
+  def view: GameView = GameView(blocks, size, robots)
 
-  if (Source.fromFile(COORD_FILE).mkString != null)
-    loadFromFile(Option(Source.fromFile(COORD_FILE).mkString))
+  if (Source.fromFile(COORDINATE_FILE).mkString != null)
+    loadFromFile(Option(Source.fromFile(COORDINATE_FILE).mkString))
+
+  /**
+   * Fire the collisions sensors at the start otherwise
+   * the robots may just wander into a fixed block
+   */
+ // avatars.foreach( CollisionBehaviour ! (_))
 
   def loadFromFile(t: Option[String]) {
     t match {
@@ -89,77 +74,32 @@ class Stage(size: (Int, Int)) extends Publisher {
   }
 
   // 4-axis functions
-  def moveUp()    = moveBy(0, 1)
-  def moveRight() = moveBy(1, 0)
-  def moveDown()  = moveBy(0, -1)
-  def moveLeft()  = moveBy(-1, 0)
+  //def moveUp()    = moveBy(0, 1)
+  //def moveRight() = moveBy(1, 0)
+  //def moveDown()  = moveBy(0, -1)
+  //def moveLeft()  = moveBy(-1, 0)
 
-  private[this] def moveBy(delta: (Int, Int)): this.type = {
-
-    // set the avatar next position
-    val moved = currentAvatar.moveBy(delta)
-
-    // get the new x and x positons to check for boundary break
-    val px = moved.pos._1
-    val py = moved.pos._2
-
-    // optimistically think the move will be okay
-    var ok = true
-
-    // check the blocks to see that there is no object in the way
-
-    blocks.foreach(f => if(
-        (f.pos._1 == moved.pos._1) &&
-        (f.pos._2 == moved.pos._2) &&
-        f.kind == FixedKind
-      ) ok = false)
-
-    if( !(px >= 0 && px < size._1) || !(py >= 0 && py < size._2))
-      ok = false
-
-    if (ok) {
-      // unload the piece from the blocks and add the moved piece to the blocks
-      val unloaded = unload(currentAvatar, blocks)
-      blocks = load(moved, unloaded)
-
-      // set the current piece to be the moved piece
-      currentAvatar = moved
-    }
-
-    this
+  private[this] def moveBy(delta: (Int, Int), robot: Robot): OutcomeEnum.Value = {
+    move(_.moveBy(delta), robot)
   }
 
-  private[this] def moveTo(newPos: (Int, Int)): OutcomeEnum.Value = {
+  private[this] def moveTo(delta: (Int, Int), robot: Robot): OutcomeEnum.Value = {
+    move(_.moveTo(delta), robot)
+  }
+
+  private[this] def move(mover: ActorAvatar => ActorAvatar, robot: Robot): OutcomeEnum.Value = {
 
     // set the avatar next position
-    val moved = currentAvatar.moveTo(newPos)
+    var moved = mover(robot.robotAvatar)
 
-    // get the new x and x positons to check for boundary break
-    val px = moved.pos._1
-    val py = moved.pos._2
+    // get the new x and x positions to check for boundary break
+    val px = moved.position._1
+    val py = moved.position._2
 
     // optimistically think the move will be okay
     var ok = true
 
-    // check the blocks to see that there is no object in the way
-
-    blocks.foreach(f => if(
-        (f.pos._1 == moved.pos._1) &&
-        (f.pos._2 == moved.pos._2) &&
-        f.kind == FixedKind
-    ) ok = false)
-
-    if( !(px >= 0 && px < size._1) || !(py >= 0 && py < size._2))
-      ok = false
-
-    if (ok) {
-      // unload the piece from the blocks and add the moved piece to the blocks
-      val unloaded = unload(currentAvatar, blocks)
-      blocks = load(moved, unloaded)
-
-      // set the current piece to be the moved piece
-      currentAvatar = moved
-    }
+    robot.robotAvatar.immutableMove(new XY(px, py))
 
     ok match {
       case(true)  => OutcomeEnum.SUCCESS
@@ -167,28 +107,19 @@ class Stage(size: (Int, Int)) extends Publisher {
     }
   }
 
-  /**
-   * Take the piece out of the block matrix
-   * @param p the piece
-   * @param bs the blocks
-   * @return the blocks
-   */
-  private[this] def unload(p: ActorAvatar, bs: Seq[Block]): Seq[Block] = {
-    // builds a new collection by applying a function to all elements in the list
-    val currentPoss = p.current map {_.pos}
-    // selects all the elements from a list which do not satisfy the predicate
-    bs filterNot { currentPoss contains _.pos  }
-
+  private[this] def edgeCheck(px: Int, py: Int): Boolean = {
+    if((px >= 0 && px < size._1) || !(py >= 0 && py < size._2)) {
+      false
+    }
+    true
   }
 
-  /**
-   * Load the piece into the block martix
-   * @param p the piece
-   * @param bs the blocks
-   * @return the blocks
-   */
-  private[this] def load(p: ActorAvatar, bs: Seq[Block]): Seq[Block] =
-    bs ++ p.current
+  def renderBlockFromCoordinates(point: (Int, Int)) {
+    val px = (math.floor(  point._1 / SWGUI.blockSize)).toInt
+    val py = (size._2 - 1 - math.floor(point._2 / SWGUI.blockSize)).toInt
+
+    renderBlock((px,py))
+  }
 
   /**
    * Render a piece at a set location. This will be a structural element
@@ -198,50 +129,52 @@ class Stage(size: (Int, Int)) extends Publisher {
    */
   def renderBlock(point: (Int, Int)) {
 
-    val px = (math.floor(  point._1 / SWGUI.blockSize)).toInt
-    val py = (size._2 - 1 - math.floor(point._2 / SWGUI.blockSize)).toInt
+    val xy = new XY(point._1, point._2)
 
-    val piece = ActorAvatar(new XY(px,py), FixedKind, Orientation.North, new SWActor())
-    val unloaded = unload(piece, blocks)
-    val moved = piece.moveBy(px,py)
-    blocks = load(piece, unloaded)
+    blocks(xy) =  new Block(xy, FixedKind)
 
-    var text = Source.fromFile(COORD_FILE).mkString
-    val writer = new PrintWriter(new File(COORD_FILE))
+    var text = Source.fromFile(COORDINATE_FILE).mkString
+    val writer = new PrintWriter(new File(COORDINATE_FILE))
 
-    writer.append(text.+(point)+",")
+    writer.append(text.+(xy)+",")
     writer.close()
 
   }
 
-  def move(act: RequestEnum.Value, obj: Animated): OutcomeEnum.Value = {
+  /**
+   * Move the current avatar - wrong as there needs to be more thn one of them
+   * @return
+   */
+  def move(direction: RequestEnum.Value, robot: Robot): OutcomeEnum.Value = {
 
-    val orientation = currentAvatar.orientation;
-    val direction = act;
+    val avatar = robot.robotAvatar
+    val orientation = avatar.orientation;
 
     // based on the orientation and direction we can work out the next xy coordinates
     // using the CoordTranslater
-    val xy = CoordTranslater.getTransformation(currentAvatar.pos,orientation,direction)
+    val xy = CoordTranslater.getTransformation(avatar.position,avatar.orientation,direction)
 
     // publish the move event for the reactor to fire
     publish(AMovementEvent)
 
-    def moveUp()    = moveBy(0, 1)
-    def moveRight() = moveBy(1, 0)
-    def moveDown()  = moveBy(0, -1)
-    def moveLeft()  = moveBy(-1, 0)
-
     // call to move the actor to a new block
-    val outcome = moveTo(xy)
+    val outcome = moveTo(xy, robot)
 
-    set += new MovementSensorData(
-      currentAvatar.getMoveCoordinateType(0,1),
-      currentAvatar.getMoveCoordinateType(1,0),
-      currentAvatar.getMoveCoordinateType(0,-1),
-      currentAvatar.getMoveCoordinateType(-1,0)
-    )
+    //BehaviourCollisio ! (avatar)
 
     outcome
+  }
 
+  def locationIdent(avatar: ActorAvatar): (Boolean, Boolean, Boolean, Boolean) = {
+
+    val p = avatar.position
+    val o = avatar.orientation
+
+    (
+       blocks.getOrElse(CoordTranslater.getTransformation(p,o,RequestEnum.FORWARD),new Block((-1,-1),FixedKind)).kind == FixedKind,
+       blocks.getOrElse(CoordTranslater.getTransformation(p,o,RequestEnum.RIGHT),  new Block((-1,-1),FixedKind)).kind == FixedKind,
+       blocks.getOrElse(CoordTranslater.getTransformation(p,o,RequestEnum.BACK),   new Block((-1,-1),FixedKind)).kind == FixedKind,
+       blocks.getOrElse(CoordTranslater.getTransformation(p,o,RequestEnum.LEFT),   new Block((-1,-1),FixedKind)).kind == FixedKind
+     )
   }
 }

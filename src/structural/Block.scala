@@ -1,5 +1,6 @@
 package ScalaWorld.structural
 
+import behaviours.Behaviour
 import ScalaWorld.enumerations.{Orientation, LandmarkEnumerations}
 
 /**
@@ -9,7 +10,7 @@ import ScalaWorld.enumerations.{Orientation, LandmarkEnumerations}
  * Time: 16:31
  * To change this template use File | Settings | File Templates.
  */
-class Block (posX: Int, posY: Int, blockOpacity: Int = 0, blockSolidity: Int = 100, blockOccupier: SWActor, occupierOrientation: Orientation.Value , myGrid: Grid ) {
+class Block (posX: Int, posY: Int, blockOpacity: Int = 0, blockSolidity: Int = 100, blockOccupier: Behaviour, occupierOrientation: Orientation.Value , myGrid: Grid ) {
 
   val x = posX
   val y = posY

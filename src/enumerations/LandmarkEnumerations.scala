@@ -12,11 +12,11 @@ object LandmarkEnumerations extends Enumeration {
   val CORNER_BL    = Value("Corner to the back left")
   val CORNER_BR    = Value("Corner to the back right")
   val CORRIDOR_LR  = Value("Corridor to the left and right")
-  val CORRIDOR_FB  = Value("Corner to the front and back")
+  val CORRIDOR_FB  = Value("Corridor to the front and back")
   val BLINDALLEY_L = Value("Blind alley to the left")
   val BLINDALLEY_F = Value("Blind alley to the right")
   val BLINDALLEY_R = Value("Blind alley to the rear")
-  val BLINDALLEY_B = Value("Blind alley to the front")
+  val BLINDALLEY_B = Value("Blind alley to the back")
   val TRAP         = Value("Closed area")
   val EMPTY_SPACE  = Value("No landmarks nearby")
 

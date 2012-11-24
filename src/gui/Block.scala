@@ -1,3 +1,6 @@
 package gui
 
-case class Block(pos: (Int, Int), kind: PieceKind)
+import java.awt.Color
+
+case class Block(pos: (Int, Int), kind: PieceKind)  {
+}

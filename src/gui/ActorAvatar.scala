@@ -1,22 +1,23 @@
 package gui
 
 import ScalaWorld.enumerations._
-import ScalaWorld.structural.SWActor
 import translations.XY
 import scala.collection.mutable.Seq
+import ScalaWorld.structural.behaviours.classification.BehaviourClassificationEnum
+import ScalaWorld.structural.behaviours.specific.BehaviourMove
+import ScalaWorld.structural.Robot
 
 /**
  * Animated avatar
  * @param pos avatar position
  * @param kind what kind it is
- * @param locals the local blocks
- * @param orientation orientation
  */
-case class ActorAvatar(pos: XY, kind: PieceKind, locals: Seq[(Int, Int)], orientation: Orientation.Value, actor: SWActor) {
+case class ActorAvatar(name:String, pos: XY, kind: PieceKind, o: Orientation.Value) {
 
-  def current: Seq[Block] = locals map {
-    case (x, y) => Block((math.floor(x + pos._1).toInt,math.floor(y + pos._2).toInt),kind)
-  }
+  val ident = name
+  var position = pos
+  var robot:Robot = null
+  var orientation = o
 
   def moveBy(delta: (Int, Int)): ActorAvatar =
     copy(pos =  new XY (pos._1 + delta._1, pos._2 + delta._2))
@@ -26,13 +27,11 @@ case class ActorAvatar(pos: XY, kind: PieceKind, locals: Seq[(Int, Int)], orient
 
   def moveTo(newPos: (Int, Int)): ActorAvatar =
     copy(pos = new XY(newPos._1, newPos._2))
-}
 
-case object ActorAvatar {
+  def immutableMove(delta: XY) {position = delta}
 
-  def apply(pos: XY, kind: PieceKind, orientation: Orientation.Value, actor: SWActor): ActorAvatar =
-    kind match {
-      case AnimKind  => ActorAvatar (pos, kind, Seq((0, 0)), Orientation.North, new SWActor())
-      case FixedKind => ActorAvatar( pos, kind, Seq((0, 0)), Orientation.North, new SWActor())
-    }
+  def setRobot(r: Robot) {
+    robot = r
+  }
+
 }
